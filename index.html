@@ -1,11 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIS - Rendy</title>
+  <meta charset="utf-8" />
+  <title>Peta Wisata Alam Sukabumi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
-    <h1>Hai ganteng</h1>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Inisialisasi peta
+    var map = L.map('map').setView([-7.05, 106.66], 10); // Sukabumi area
+
+    // ==== BASE MAPS ====
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    var satellite = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      { attribution: 'Tiles © Esri' }
+    );
+
+    // ==== OVERLAYS ====
+
+    // 1️⃣ MARKERS: titik wisata
+    var curugCikaso = L.marker([-7.336, 106.556]).bindPopup("<b>Curug Cikaso</b><br>Air terjun tiga tingkat yang menawan.");
+    var geoparkCiletuh = L.marker([-7.236, 106.493]).bindPopup("<b>Geopark Ciletuh</b><br>Destinasi UNESCO Global Geopark.");
+    var pantaiPelabuhanRatu = L.marker([-6.986, 106.547]).bindPopup("<b>Pantai Pelabuhan Ratu</b><br>Pantai terkenal dengan legenda Nyi Roro Kidul.");
+
+    var wisataMarkers = L.layerGroup([curugCikaso, geoparkCiletuh, pantaiPelabuhanRatu]);
+
+    // 2️⃣ POLYLINE: rute wisata (jalur sederhana)
+    var ruteWisata = L.polyline([
+      [-6.986, 106.547], // Pantai Pelabuhan Ratu
+      [-7.236, 106.493], // Geopark Ciletuh
+      [-7.336, 106.556]  // Curug Cikaso
+    ], {
+      color: 'red',
+      weight: 3
+    }).bindPopup("Rute wisata utama Sukabumi");
+
+    // 3️⃣ POLYGON: area wisata (misal kawasan Geopark Ciletuh)
+    var kawasanGeopark = L.polygon([
+      [-7.20, 106.45],
+      [-7.25, 106.45],
+      [-7.25, 106.55],
+      [-7.20, 106.55]
+    ], {
+      color: 'blue',
+      fillColor: '#3388ff',
+      fillOpacity: 0.3
+    }).bindPopup("<b>Kawasan Geopark Ciletuh</b><br>Area konservasi dan wisata alam.");
+
+    // ==== LAYER CONTROL ====
+    var baseMaps = {
+      "OpenStreetMap": osm,
+      "Satellite": satellite
+    };
+
+    var overlayMaps = {
+      "Lokasi Wisata": wisataMarkers,
+      "Rute Wisata": ruteWisata,
+      "Kawasan Geopark": kawasanGeopark
+    };
+
+    L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+    // Tampilkan semua overlay saat awal
+    wisataMarkers.addTo(map);
+    ruteWisata.addTo(map);
+    kawasanGeopark.addTo(map);
+  </script>
 </body>
 </html>
